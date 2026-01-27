@@ -1,0 +1,21 @@
+blank_issues_enabled: true 
+contact_links:
+  - name: "Support kontaktieren"
+    url: "https://example.com/support"
+    about: "Hast du Fragen oder benötigst du Hilfe?"
+
+templates:
+  - name: "Bug Report"
+    description: "Melde einen Fehler im Projekt"
+    labels: ["bug"]
+    template: "bug_report.md"
+
+  - name: "Feature Request"
+    description: "Vorschlag für ein neues Feature"
+    labels: ["feature request"]
+    template: "feature_request.md"
+
+  - name: "Allgemeines Issue"
+    description: "Erstelle ein allgemeines Issue"
+    labels: ["general"]
+    template: "general_issue.md"
