@@ -1,0 +1,36 @@
+name: shared-pr-creator.yml
+
+on:
+  workflow_call:
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        id: cpr # ID hinzugefügt, um den Status abzufragen
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Automatischer PR durch IDE-Push"
+          title: "Neuer Vorschlag aus Branch ${{ github.ref_name }}"
+          body: "Dieser PR wurde automatisch erstellt. Trigger-Event: ${{ github.event_name }}"
+          branch: "auto-pr-${{ github.ref_name }}"
+
+      # 1. Benachrichtigung bei Erfolg (Optional)
+      - name: Check Success
+        if: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          echo "### ✅ PR erfolgreich erstellt!" >> $GITHUB_STEP_SUMMARY
+          echo "Nummer: #${{ steps.cpr.outputs.pull-request-number }}" >> $GITHUB_STEP_SUMMARY
+          echo "URL: ${{ steps.cpr.outputs.pull-request-url }}" >> $GITHUB_STEP_SUMMARY
+
+      # 2. Fehlerbehandlung
+      - name: Handle Failure
+        if: failure() # Wird nur ausgeführt, wenn ein vorheriger Schritt gescheitert ist
+        run: |
+          echo "## ❌ Fehler bei der PR-Erstellung" >> $GITHUB_STEP_SUMMARY
+          echo "Der Workflow in Repository ${{ github.repository }} ist fehlgeschlagen." >> $GITHUB_STEP_SUMMARY
+          echo "Bitte prüfe, ob die 'Workflow Permissions' auf 'Read and Write' stehen." >> $GITHUB_STEP_SUMMARY
