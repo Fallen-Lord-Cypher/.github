@@ -1,4 +1,5 @@
-name: Zentrale Logik
+name: Zentrale CI Logik
+
 on:
   workflow_call:
 
@@ -6,12 +7,65 @@ jobs:
   test-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Code auschecken
         uses: actions/checkout@v4
 
-      - name: Verbindungs-Check
+      # --- JAVA LOGIK (IntelliJ / Spring Boot) ---
+      - name: Java 21 Setup
+        if: hashFiles('pom.xml', 'build.gradle', 'build.gradle.kts') != ''
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Java Tests ausführen
+        if: hashFiles('pom.xml', 'build.gradle', 'build.gradle.kts') != ''
         run: |
-          echo "✅ Verbindung erfolgreich!"
-          echo "Der zentrale Workflow wurde vom Projekt-Repo aufgerufen."
-          echo "Java-Version auf dem Server ist:"
-          java -version
+          if [ -f "pom.xml" ]; then
+            mvn test
+          elif [ -f "gradlew" ]; then
+            ./gradlew test
+          else
+            gradle test
+          fi
+
+      # --- PHP LOGIK (PHPStorm / Laravel / Symfony) ---
+      - name: PHP Setup
+        if: hashFiles('composer.json') != ''
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, mysql
+          coverage: none
+
+      - name: PHP Abhängigkeiten installieren
+        if: hashFiles('composer.json') != ''
+        run: composer install --no-progress --prefer-dist
+
+      - name: PHP Tests ausführen
+        if: hashFiles('composer.json') != ''
+        run: vendor/bin/phpunit
+
+      # --- PYTHON LOGIK (PyCharm / Django / Flask) ---
+      - name: Python Setup
+        if: hashFiles('requirements.txt', 'pyproject.toml') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Python Abhängigkeiten installieren
+        if: hashFiles('requirements.txt', 'pyproject.toml') != ''
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
+
+      - name: Python Tests ausführen
+        if: hashFiles('requirements.txt', 'pyproject.toml') != ''
+        run: |
+          if [ -f "manage.py" ]; then
+            python manage.py test
+          else
+            pytest
+          fi
