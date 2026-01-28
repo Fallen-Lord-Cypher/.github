@@ -1,24 +1,25 @@
-name: Standard CI Tests
-
+name: Zentrale Logik
 on:
   workflow_call:
 
 jobs:
-  test:
+  test-job:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Code auschecken
+        uses: actions/checkout@v4
 
-      # Logik für Java (IntelliJ Projekte)
-      - name: Run Java Tests
-        if: hashFiles('pom.xml', 'build.gradle') != ''
-        run: |
-          echo "Java Projekt erkannt..."
-          ./gradlew test || mvn test
+      # Dieser Schritt installiert Java 21
+      - name: Java 21 installieren
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
 
-      # Logik für PHP (PHPStorm Projekte)
-      - name: Run PHP Tests
-        if: hashFiles('composer.json') != ''
-        run: |
-          echo "PHP Projekt erkannt..."
-          vendor/bin/phpunit
+      - name: Info
+        run: echo "Starte Maven Build für Java 21..."
+
+      # Dieser Schritt führt deine Tests aus
+      - name: Maven Test ausführen
+        run: mvn test
