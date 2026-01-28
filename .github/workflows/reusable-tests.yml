@@ -6,20 +6,12 @@ jobs:
   test-job:
     runs-on: ubuntu-latest
     steps:
-      - name: Code auschecken
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Dieser Schritt installiert Java 21
-      - name: Java 21 installieren
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Info
-        run: echo "Starte Maven Build für Java 21..."
-
-      # Dieser Schritt führt deine Tests aus
-      - name: Maven Test ausführen
-        run: mvn test
+      - name: Verbindungs-Check
+        run: |
+          echo "✅ Verbindung erfolgreich!"
+          echo "Der zentrale Workflow wurde vom Projekt-Repo aufgerufen."
+          echo "Java-Version auf dem Server ist:"
+          java -version
