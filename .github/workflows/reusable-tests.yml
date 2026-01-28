@@ -23,7 +23,7 @@ jobs:
         if: hashFiles('pom.xml', 'build.gradle', 'build.gradle.kts') != ''
         run: |
           if [ -f "pom.xml" ]; then
-            mvn test
+            mvn test -Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle
           elif [ -f "gradlew" ]; then
             ./gradlew test
           else
