@@ -1,7 +1,7 @@
 name: Standard CI Tests
 
 on:
-  workflow_call: # Erlaubt den Aufruf aus anderen Repos
+  workflow_call:
 
 jobs:
   test:
@@ -9,14 +9,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node/Python/Go # Je nach deiner Sprache
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm' # Best Practice: Caching beschleunigt die CI massiv
+      # Logik für Java (IntelliJ Projekte)
+      - name: Run Java Tests
+        if: hashFiles('pom.xml', 'build.gradle') != ''
+        run: |
+          echo "Java Projekt erkannt..."
+          ./gradlew test || mvn test
 
-      - name: Install Dependencies
-        run: npm ci # 'ci' ist sauberer als 'install' für Automatisierungen
-
-      - name: Run Tests
-        run: npm test # Führt alle Tests aus
+      # Logik für PHP (PHPStorm Projekte)
+      - name: Run PHP Tests
+        if: hashFiles('composer.json') != ''
+        run: |
+          echo "PHP Projekt erkannt..."
+          vendor/bin/phpunit
