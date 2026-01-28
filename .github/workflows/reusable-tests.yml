@@ -1,0 +1,22 @@
+name: Standard CI Tests
+
+on:
+  workflow_call: # Erlaubt den Aufruf aus anderen Repos
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node/Python/Go # Je nach deiner Sprache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # Best Practice: Caching beschleunigt die CI massiv
+
+      - name: Install Dependencies
+        run: npm ci # 'ci' ist sauberer als 'install' für Automatisierungen
+
+      - name: Run Tests
+        run: npm test # Führt alle Tests aus
